@@ -1,0 +1,9 @@
+services:
+  db:
+    image: postgres
+    container_name: sqlserver
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: teste123
+    ports:
+      - "5432:5432"
