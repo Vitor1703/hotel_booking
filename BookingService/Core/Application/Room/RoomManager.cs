@@ -1,10 +1,7 @@
 ﻿using Application.Rooms.Dtos;
 using Application.Rooms.Ports;
-using Application.Rooms.Requests;
 using Domain.Rooms.Entities;
 using Domain.Rooms.Ports;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Application.Rooms
 {
@@ -20,27 +17,42 @@ namespace Application.Rooms
         public async Task<RoomDto> GetRoomByIdAsync(int id)
         {
             var room = await _roomRepository.GetByIdAsync(id);
-            return room != null ? RoomMapping.ToDto(room) : null;
+            if (room == null) return null;
+
+            return new RoomDto
+            {
+                Id = room.Id,
+                Name = room.Name,
+                Capacity = room.Level,
+                Price = room.Price
+            };
         }
 
         public async Task<IEnumerable<RoomDto>> GetAllRoomsAsync()
         {
             var rooms = await _roomRepository.GetAllAsync();
-            return RoomMapping.ToDtoList(rooms);
+            return rooms.Select(room => new RoomDto
+            {
+                Id = room.Id,
+                Name = room.Name,
+                Capacity = room.Level,
+                Price = room.Price
+            });
         }
 
-        public async Task<RoomDto> CreateRoomAsync(CreateRoomRequest request)
+        public async Task<RoomDto> CreateRoomAsync(RoomDto roomDto)
         {
             var room = new Room
             {
-                Name = request.Name,
-                Level = request.Level,
-                IsInMaintenance = request.IsInMaintenance,
-                Price = new Price(request.PriceAmount) // Assuming Price has a constructor for amount
+                Name = roomDto.Name,
+                Level = roomDto.Capacity,
+                Price = roomDto.Price
             };
 
-            room = await _roomRepository.Create(room);
-            return RoomMapping.ToDto(room);
+            await _roomRepository.CreateAsync(room);
+
+            roomDto.Id = room.Id; // Assign the generated ID
+            return roomDto;
         }
 
         public async Task<bool> UpdateRoomAsync(int id, RoomDto roomDto)
@@ -49,9 +61,8 @@ namespace Application.Rooms
             if (room == null) return false;
 
             room.Name = roomDto.Name;
-            room.Level = roomDto.Level;
-            room.IsInMaintenance = roomDto.IsInMaintenance;
-            room.Price = new Price(roomDto.PriceAmount); // Updating Price
+            room.Level = roomDto.Capacity;
+            room.Price = roomDto.Price;
 
             await _roomRepository.UpdateAsync(room);
             return true;
