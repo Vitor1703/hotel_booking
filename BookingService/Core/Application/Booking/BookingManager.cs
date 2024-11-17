@@ -2,6 +2,7 @@
 using Application.Bookings.Ports;
 using Application.Bookings.Requests;
 using Domain.Bookings.Entities;
+using Domain.Bookings.Enums;
 using Domain.Bookings.Ports;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -44,7 +45,8 @@ namespace Application.Bookings
                 RoomId = request.RoomId,
                 GuestId = request.GuestId,
                 Start = request.CheckIn,
-                End = request.CheckOut
+                End = request.CheckOut,
+                Status = Status.Created
             };
 
             booking = await _bookingRepository.Create(booking);
