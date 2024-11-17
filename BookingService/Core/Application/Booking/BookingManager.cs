@@ -29,8 +29,16 @@ namespace Application.Bookings
             return BookingMapping.ToDtoList(bookings);
         }
 
-        public async Task<BookingDto> CreateBookingAsync(CreateBookingRequest request)
+        public async Task<BookingDto?> CreateBookingAsync(CreateBookingRequest request)
         {
+            // Verificar se o quarto está ocupado
+            var isRoomOccupied = await _bookingRepository.IsRoomOccupied(request.RoomId, request.CheckIn, request.CheckOut);
+            if (isRoomOccupied)
+            {
+                throw new Exception("Room is occupied or unavailable for the selected time.");
+            }
+
+            // Criar a reserva
             var booking = new Booking
             {
                 RoomId = request.RoomId,
@@ -48,6 +56,13 @@ namespace Application.Bookings
             var booking = await _bookingRepository.GetByIdAsync(id);
             if (booking == null) return false;
 
+            // Verifica se o quarto está ocupado
+            var isRoomOccupied = await _bookingRepository.IsRoomOccupied(bookingDto.RoomId, bookingDto.Start, bookingDto.End);
+            if (isRoomOccupied)
+            {
+                throw new Exception("Room is occupied or unavailable for the selected time.");
+            }
+
             booking.Start = bookingDto.Start;
             booking.End = bookingDto.End;
             booking.RoomId = bookingDto.RoomId;
@@ -56,6 +71,7 @@ namespace Application.Bookings
             await _bookingRepository.UpdateAsync(booking);
             return true;
         }
+
 
         public async Task<bool> DeleteBookingAsync(int id)
         {

@@ -12,5 +12,6 @@ namespace Domain.Bookings.Ports
         Task UpdateAsync(Booking booking); // Método para atualizar uma reserva
         Task DeleteAsync(Booking booking); // Método para deletar uma reserva
         Task<bool> HasBookingsForGuest(int guestId);
+        Task<bool> IsRoomOccupied(int roomId, DateTime start, DateTime end);
     }
 }

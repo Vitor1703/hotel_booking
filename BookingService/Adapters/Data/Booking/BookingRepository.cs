@@ -1,5 +1,6 @@
 ﻿using Data;
 using Domain.Bookings.Entities;
+using Domain.Bookings.Enums;
 using Domain.Bookings.Ports;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -55,6 +56,15 @@ namespace Domain.Bookings
         public async Task<bool> HasBookingsForGuest(int guestId)
         {
             return await _context.Bookings.AnyAsync(b => b.GuestId == guestId);
+        }
+
+        public async Task<bool> IsRoomOccupied(int roomId, DateTime start, DateTime end)
+        {
+            return await _context.Bookings.AnyAsync(b =>
+                b.RoomId == roomId &&
+                b.Status != Status.Canceled &&
+                b.Status != Status.Finished &&
+                (start < b.End.AddHours(3) && end > b.Start));
         }
     }
 }

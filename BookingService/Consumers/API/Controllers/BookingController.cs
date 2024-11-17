@@ -2,8 +2,6 @@ using Application.Bookings.Dtos;
 using Application.Bookings.Ports;
 using Application.Bookings.Requests;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -43,24 +41,41 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<BookingDto>> Post(CreateBookingRequest request)
         {
-            var res = await _bookingManager.CreateBookingAsync(request);
+            try
+            {
+                var res = await _bookingManager.CreateBookingAsync(request);
 
-            if (res != null)
-                return Created("", res);
+                if (res != null)
+                    return Created("", res); // Retorna 201 Created com a URL do recurso
 
-            _logger.LogError("Failed to create booking");
-            return BadRequest();
+                _logger.LogError("Failed to create booking - No result returned.");
+                return BadRequest(new { message = "Failed to create booking." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating booking");
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, BookingDto bookingDto)
         {
-            var success = await _bookingManager.UpdateBookingAsync(id, bookingDto);
+            try
+            {
+                var success = await _bookingManager.UpdateBookingAsync(id, bookingDto);
 
-            if (success)
-                return NoContent();
+                if (success)
+                    return NoContent(); // 204 No Content
 
-            return NotFound();
+                _logger.LogWarning($"Booking with ID {id} not found for update.");
+                return NotFound(new { message = $"Booking with ID {id} not found." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating booking with ID {id}");
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
