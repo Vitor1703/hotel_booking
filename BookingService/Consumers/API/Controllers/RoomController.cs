@@ -1,53 +1,56 @@
 using Application.Rooms.Dtos;
 using Application.Rooms.Ports;
+using Application.Rooms.Requests;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+[ApiController]
+[Route("room")]
+public class RoomController : ControllerBase
 {
-    [ApiController]
-    [Route("api/room")]
-    public class RoomController : ControllerBase
+    private readonly IRoomManager _roomManager;
+
+    public RoomController(IRoomManager roomManager)
     {
-        private readonly IRoomManager _roomManager;
+        _roomManager = roomManager;
+    }
 
-        public RoomController(IRoomManager roomManager)
-        {
-            _roomManager = roomManager;
-        }
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<RoomDto>>> GetAll()
+    {
+        var rooms = await _roomManager.GetAllRoomsAsync();
+        return Ok(rooms);
+    }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var room = await _roomManager.GetRoomByIdAsync(id);
-            return room != null ? Ok(room) : NotFound();
-        }
+    [HttpGet("{id}")]
+    public async Task<ActionResult<RoomDto>> GetById(int id)
+    {
+        var room = await _roomManager.GetRoomByIdAsync(id);
+        if (room == null) return NotFound();
+        return Ok(room);
+    }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var rooms = await _roomManager.GetAllRoomsAsync();
-            return Ok(rooms);
-        }
+    [HttpPost]
+    public async Task<ActionResult<RoomDto>> Post([FromBody] CreateRoomRequest request)
+    {
+        var room = await _roomManager.CreateRoomAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(RoomDto roomDto)
-        {
-            var room = await _roomManager.CreateRoomAsync(roomDto);
-            return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(int id, [FromBody] RoomDto roomDto)
+    {
+        var result = await _roomManager.UpdateRoomAsync(id, roomDto);
+        if (!result) return NotFound();
+        return NoContent();
+    }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, RoomDto roomDto)
-        {
-            var result = await _roomManager.UpdateRoomAsync(id, roomDto);
-            return result ? NoContent() : NotFound();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var result = await _roomManager.DeleteRoomAsync(id);
-            return result ? NoContent() : NotFound();
-        }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var result = await _roomManager.DeleteRoomAsync(id);
+        if (!result) return NotFound();
+        return NoContent();
     }
 }

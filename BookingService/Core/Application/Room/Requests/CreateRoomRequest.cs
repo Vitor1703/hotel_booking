@@ -1,8 +1,7 @@
-﻿namespace Application.Rooms.Dtos
+﻿namespace Application.Rooms.Requests
 {
-    public class RoomDto
+    public class CreateRoomRequest
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public int Level { get; set; }
         public bool IsInMaintenance { get; set; }

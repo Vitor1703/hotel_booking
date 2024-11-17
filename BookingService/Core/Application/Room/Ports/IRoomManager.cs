@@ -1,13 +1,12 @@
 ﻿using Application.Rooms.Dtos;
+using Application.Rooms.Requests;
 
-namespace Application.Rooms.Ports
+namespace Application.Rooms.Ports;
+public interface IRoomManager
 {
-    public interface IRoomManager
-    {
-        Task<RoomDto> GetRoomByIdAsync(int id);               // Obtém uma sala pelo ID
-        Task<IEnumerable<RoomDto>> GetAllRoomsAsync();        // Lista todas as salas
-        Task<RoomDto> CreateRoomAsync(RoomDto roomDto);       // Cria uma nova sala
-        Task<bool> UpdateRoomAsync(int id, RoomDto roomDto);  // Atualiza uma sala existente
-        Task<bool> DeleteRoomAsync(int id);                   // Exclui uma sala pelo ID
-    }
+    Task<IEnumerable<RoomDto>> GetAllRoomsAsync();
+    Task<RoomDto?> GetRoomByIdAsync(int id);
+    Task<RoomDto> CreateRoomAsync(CreateRoomRequest request);
+    Task<bool> UpdateRoomAsync(int id, RoomDto roomDto);
+    Task<bool> DeleteRoomAsync(int id);
 }
