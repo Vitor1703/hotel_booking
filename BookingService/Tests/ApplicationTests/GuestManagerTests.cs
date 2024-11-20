@@ -1,15 +1,15 @@
-namespace ApplicationTests
-{
-    public class GuestManagerTests
-    {
-        [Fact]
-        public void Test1()
-        {
+// namespace ApplicationTests
+// {
+//     public class GuestManagerTests
+//     {
+//         [Fact]
+//         public void Test1()
+//         {
 
-        }
+//         }
 
-        //caminho feliz
+//         //caminho feliz
 
-        //
-    }
-}
+//         //
+//     }
+// }
